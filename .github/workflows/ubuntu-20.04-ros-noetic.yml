@@ -1,0 +1,46 @@
+name: Ubuntu 20.04 ROS Noetic
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Install ROS
+        run: |
+          sudo sh -c "echo \"deb http://packages.ros.org/ros/ubuntu xenial main\" > /etc/apt/sources.list.d/ros-latest.list"
+          sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+          sudo apt-get update -qq
+          sudo apt install libxml2-dev libraw1394-dev libncurses5-dev swig cmake-curses-gui libxml2-dev libjsoncpp-dev qtbase5-dev qtbase5-dev-tools qt5-qmake qt5-default libqt5xmlpatterns5-dev
+          sudo apt install ros-noetic-ros-base ros-noetic-tf2 ros-noetic-tf python3-wstool python3-catkin-tools python3-osrf-pycommon
+
+      - name: Create Workspace
+        run: |
+          source /opt/ros/noetic/setup.bash
+          mkdir -p ~/catkin_ws/src
+          cd ~/catkin_ws
+          catkin init
+          catkin build
+
+      - name: Retrieve Code
+        run: |
+          cd ~/catkin_ws/src
+          wstool init
+          wstool merge https://raw.githubusercontent.com/jhu-dvrk/dvrk-ros/devel/dvrk_ros.rosinstall
+          wstool up
+
+      - name: Compile
+        run: |
+          source ~/catkin_ws/devel/setup.bash
+          cd ~/catkin_ws
+          catkin build --no-status --summary
