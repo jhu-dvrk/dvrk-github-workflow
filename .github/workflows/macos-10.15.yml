@@ -22,7 +22,7 @@ jobs:
 
     - name: Get all repositories
       run: |
-        git clone https://github.com/jhu-cisst/cisst-saw --recusrive ${{github.workspace}}/cisst-saw
+        git clone https://github.com/jhu-cisst/cisst-saw --recursive ${{github.workspace}}/cisst-saw
         cd ${{github.workspace}}/cisst-saw
         git submodule foreach git checkout devel
         git submodule foreach git submodule init
