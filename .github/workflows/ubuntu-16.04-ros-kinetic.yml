@@ -1,10 +1,6 @@
 name: Ubuntu 16.04 ROS Kinetic
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
   workflow_dispatch:
 
