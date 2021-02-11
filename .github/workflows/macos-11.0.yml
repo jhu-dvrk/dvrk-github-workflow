@@ -23,7 +23,7 @@ jobs:
       uses: jurplel/install-qt-action@v2
       with:
         mirror: http://mirrors.ocf.berkeley.edu/qt/
-        
+
     - name: Get all repositories
       run: |
         git clone https://github.com/jhu-cisst/cisst-saw --recusrive ${{github.workspace}}/cisst-saw
@@ -31,7 +31,7 @@ jobs:
         git submodule foreach git checkout devel
         git submodule foreach git submodule init
         git submodule foreach git submodule update
-        
+
     - name: Create cisstNetlib build directory
       run: |
         cmake -E make_directory ${{github.workspace}}/cisstNetlib-build
