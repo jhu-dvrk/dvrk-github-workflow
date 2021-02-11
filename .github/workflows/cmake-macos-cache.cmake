@@ -14,7 +14,7 @@ set (CISST_cisstMesh ON CACHE BOOL "")
 set (CISST_cisstRobot ON CACHE BOOL "")
 
 # XML parsing
-set (CISST_cisstCommonXML OFF CACHE BOOL "")
+set (CISST_cisstCommonXML ON CACHE BOOL "")
 
 # JSON
 set (CISST_HAS_JSON ON CACHE BOOL "")
