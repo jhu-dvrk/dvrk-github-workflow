@@ -51,5 +51,5 @@ jobs:
       working-directory: ${{github.workspace}}/build
       shell: bash
       run: |
-        source cisstvars.sh
+        source cisst-saw/cisst/cisstvars.sh
         cmake --build . --config Release
