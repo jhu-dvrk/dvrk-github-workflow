@@ -25,6 +25,8 @@ jobs:
 
       - name: Create Workspace
         run: |
+          export CC=clang
+          export CXX=clang++
           source /opt/ros/melodic/setup.bash
           mkdir -p ~/catkin_ws/src
           cd ~/catkin_ws
