@@ -25,12 +25,11 @@ jobs:
 
       - name: Create Workspace
         run: |
-          export CC=clang
-          export CXX=clang++
           source /opt/ros/melodic/setup.bash
           mkdir -p ~/catkin_ws/src
           cd ~/catkin_ws
           catkin init
+          catkin config --cmake-args -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++
           catkin build
 
       - name: Retrieve Code
