@@ -35,6 +35,6 @@ jobs:
           vcs import --input https://raw.githubusercontent.com/jhu-dvrk/dvrk_robot_ros2/main/dvrk.vcs --recursive
       - name: Compile
         run: |
-          source /opt/ros/galactic/setup.bash
+          source /opt/ros/humble/setup.bash
           cd ~/ros2_ws
           colcon build
