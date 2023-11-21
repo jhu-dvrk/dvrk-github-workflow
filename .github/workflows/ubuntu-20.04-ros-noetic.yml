@@ -21,7 +21,7 @@ jobs:
           sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
           sudo apt-get update -qq
           sudo apt install libxml2-dev libraw1394-dev libncurses5-dev swig cmake-curses-gui libxml2-dev libjsoncpp-dev qtbase5-dev qtbase5-dev-tools qt5-qmake qt5-default libqt5xmlpatterns5-dev libbluetooth-dev
-          sudo apt install ros-noetic-ros-base ros-noetic-tf2 ros-noetic-tf python3-wstool python3-catkin-tools python3-osrf-pycommon
+          sudo apt install ros-noetic-ros-base ros-noetic-tf2 ros-noetic-tf python3-vcstool python3-catkin-tools python3-osrf-pycommon
 
       - name: Create Workspace
         run: |
@@ -34,9 +34,7 @@ jobs:
       - name: Retrieve Code
         run: |
           cd ~/catkin_ws/src
-          wstool init
-          wstool merge https://raw.githubusercontent.com/jhu-dvrk/dvrk-ros/devel/dvrk_ros.rosinstall
-          wstool up
+          vcs import --input https://raw.githubusercontent.com/jhu-dvrk/dvrk-ros/devel/dvrk-devel.vcs --recursive
 
       - name: Compile
         run: |
