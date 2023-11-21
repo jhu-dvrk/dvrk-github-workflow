@@ -32,7 +32,7 @@ jobs:
           source /opt/ros/galactic/setup.bash
           mkdir -p ~/ros2_ws/src
           cd ~/ros2_ws/src
-          vcs import --input https://raw.githubusercontent.com/jhu-dvrk/dvrk_robot_ros2/main/dvrk.vcs --recursive
+          vcs import --input https://raw.githubusercontent.com/jhu-dvrk/dvrk_robot_ros2/devel/dvrk-devel.vcs --recursive
       - name: Compile
         run: |
           source /opt/ros/galactic/setup.bash
