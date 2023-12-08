@@ -1,4 +1,4 @@
-name: macOS 10.15
+name: macOS latest
 
 on:
 
@@ -35,7 +35,7 @@ jobs:
     - name: Build cisstNetlib
       working-directory: ${{github.workspace}}/cisstNetlib-build
       run: |
-        cmake ${{github.workspace}}/cisst-saw/cisstNetlib -DCMAKE_Fortran_COMPILER=gfortran-9
+        cmake ${{github.workspace}}/cisst-saw/cisstNetlib -DcisstNetlib_LANGUAGE=C
         cmake --build . --config Release
         sudo cmake --build . --target install
 
@@ -45,7 +45,9 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}/build
-      run: cmake ${{github.workspace}}/cisst-saw -DCMAKE_BUILD_TYPE=Release -C ${{github.workspace}}/.github/workflows/cmake-macos-cache.cmake
+      run: |
+        cmake ${{github.workspace}}/cisst-saw -DCMAKE_BUILD_TYPE=Release -C ${{github.workspace}}/.github/workflows/cmake-macos-cache.cmake
+        cmake ${{github.workspace}}/cisst-saw
 
     - name: Build
       working-directory: ${{github.workspace}}/build
