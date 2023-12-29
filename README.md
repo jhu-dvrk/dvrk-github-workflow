@@ -1,2 +1,5 @@
 # dvrk-github-workflow
-Empty repository hosting github workflow to compile the dVRK software stack
+
+Repository used to define and trigger builds of the whole dVRK software stack.
+
+This repository also contains the VCS files used for the dVRK releases.
