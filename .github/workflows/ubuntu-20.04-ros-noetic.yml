@@ -34,7 +34,7 @@ jobs:
       - name: Retrieve Code
         run: |
           cd ~/catkin_ws/src
-          vcs import --input https://raw.githubusercontent.com/jhu-dvrk/dvrk-ros/devel/dvrk-devel.vcs --recursive
+          vcs import --input https://raw.githubusercontent.com/jhu-dvrk/dvrk-github-workflow/main/vcs/ros1-dvrk-devel.vcs --recursive
 
       - name: Compile
         run: |
