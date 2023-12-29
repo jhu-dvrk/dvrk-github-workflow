@@ -70,7 +70,7 @@ repositories:
   dvrk/dvrk_matlab:
     type: git
     url: https://github.com/jhu-dvrk/ros2_dvrk_matlab.git
-    version: 2.2.1
+    version: 2.2.0
   dvrk/dvrk_model:
     type: git
     url: https://github.com/jhu-dvrk/ros2_dvrk_model.git
