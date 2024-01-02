@@ -19,7 +19,6 @@ jobs:
       uses: jurplel/install-qt-action@v3
 
     - name: Get all repositories
-      shell: bash
       run: |
         git clone https://github.com/jhu-cisst/cisst-saw --recursive ${{github.workspace}}/cisst-saw
         cd ${{github.workspace}}/cisst-saw
@@ -28,24 +27,20 @@ jobs:
         git submodule foreach git submodule update
 
     - name: Create cisstNetlib build directory
-      shell: bash
       run: |
         cmake -E make_directory ${{github.workspace}}/cisstNetlib-build
 
     - name: Build cisstNetlib
-      shell: bash
       working-directory: ${{github.workspace}}/cisstNetlib-build
       run: |
         cmake ${{github.workspace}}/cisst-saw/cisstNetlib -DcisstNetlib_LANGUAGE=C
         cmake --build . --config Release
-        sudo cmake --build . --target install
+        cmake --build . --target install
 
     - name: Create Build Environment
-      shell: bash
       run: cmake -E make_directory ${{github.workspace}}/build
 
     - name: Configure CMake
-      shell: bash
       working-directory: ${{github.workspace}}/build
       run: |
         cmake ${{github.workspace}}/cisst-saw -DCMAKE_BUILD_TYPE=Release -C ${{github.workspace}}/.github/workflows/cmake-windows-cache.cmake
@@ -53,6 +48,5 @@ jobs:
 
     - name: Build
       working-directory: ${{github.workspace}}/build
-      shell: bash
       run: |
         cmake --build . --config Release
