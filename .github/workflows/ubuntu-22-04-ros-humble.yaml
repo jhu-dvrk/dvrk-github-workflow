@@ -26,7 +26,7 @@ jobs:
           sudo apt update
           sudo apt install ros-humble-ros-base ros-dev-tools
           sudo apt install python3-vcstool python3-colcon-common-extensions
-          sudo apt install libxml2-dev libraw1394-dev libncurses5-dev qtcreator swig sox espeak cmake-curses-gui cmake-qt-gui git subversion gfortran-9 libcppunit-dev libqt5xmlpatterns5-dev libbluetooth-dev
+          sudo apt install libxml2-dev libraw1394-dev libncurses5-dev qtcreator swig sox espeak cmake-curses-gui cmake-qt-gui git subversion gfortran-9 libcppunit-dev libqt5xmlpatterns5-dev libbluetooth-dev libhidapi-dev
       - name: Create Workspace and retrieve code
         run: |
           source /opt/ros/humble/setup.bash
