@@ -26,9 +26,11 @@ set (CISST_HAS_CISSTNETLIB ON CACHE BOOL "")
 set (CISST_HAS_QT5 ON CACHE BOOL "")
 
 # SAW components for the dVRK
+set (SAW_sawKeyboard ON CACHE BOOL "")
+set (SAW_sawTextToSpeech ON CACHE BOOL "")
 set (SAW_sawControllers ON CACHE BOOL "")
+set (SAW_sawRobotIO1394 ON CACHE BOOL "")
+set (Amp1394_HAS_RAW1394 OFF CACHE BOOL "")
 set (SAW_sawIntuitiveResearchKit ON CACHE BOOL "")
 set (sawIntuitiveResearchKit_HAS_SUJ_Si OFF CACHE BOOL "")
 set (sawIntuitiveResearchKit_HAS_HID_HEAD_SENSOR OFF CACHE BOOL "")
-set (SAW_sawRobotIO1394 ON CACHE BOOL "")
-set (Amp1394_HAS_RAW1394 OFF CACHE BOOL "")
