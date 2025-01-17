@@ -1,0 +1,40 @@
+name: Ubuntu 24.04 ROS Jazzy
+
+on:
+
+  workflow_dispatch:
+
+  schedule:
+    - cron: '34 19 * * 0'
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Install ROS
+        run: |
+          sudo apt install software-properties-common
+          sudo add-apt-repository universe
+          sudo apt update
+          sudo apt install curl
+          sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+	  sudo apt update
+          sudo apt install ros-jazzy-ros-base ros-dev-tools
+          sudo apt install python3-vcstool python3-colcon-common-extensions
+          sudo apt install libxml2-dev libraw1394-dev libncurses5-dev qtcreator swig sox espeak cmake-curses-gui cmake-qt-gui git subversion gfortran-9 libcppunit-dev libqt5xmlpatterns5-dev libbluetooth-dev libhidapi-dev
+      - name: Create Workspace and retrieve code
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          mkdir -p ~/ros2_ws/src
+          cd ~/ros2_ws/src
+          vcs import --input https://raw.githubusercontent.com/jhu-dvrk/dvrk-github-workflow/main/vcs/ros2-dvrk-devel.vcs --recursive
+      - name: Compile
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          cd ~/ros2_ws
+          colcon build
