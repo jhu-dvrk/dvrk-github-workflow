@@ -13,15 +13,15 @@ jobs:
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Install ROS
         run: |
           sudo sh -c "echo \"deb http://packages.ros.org/ros/ubuntu focal main\" > /etc/apt/sources.list.d/ros-latest.list"
           sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
           sudo apt-get update -qq
-          sudo apt install libxml2-dev libraw1394-dev libncurses5-dev swig cmake-curses-gui libxml2-dev libjsoncpp-dev qtbase5-dev qtbase5-dev-tools qt5-qmake qt5-default libqt5xmlpatterns5-dev libbluetooth-dev libhidapi-dev
           sudo apt install ros-noetic-ros-base ros-noetic-tf2 ros-noetic-tf python3-vcstool python3-catkin-tools python3-osrf-pycommon
+          sudo apt install libxml2-dev libraw1394-dev libncurses5-dev swig cmake-curses-gui libxml2-dev libjsoncpp-dev qtbase5-dev qtbase5-dev-tools qt5-qmake qt5-default libqt5xmlpatterns5-dev libbluetooth-dev libhidapi-dev libjsoncpp-dev
 
       - name: Create Workspace
         run: |
