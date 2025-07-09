@@ -33,7 +33,7 @@ jobs:
           source /opt/ros/humble/setup.bash
           mkdir -p ~/ros2_ws/src
           cd ~/ros2_ws/src
-          vcs import --input https://raw.githubusercontent.com/jhu-dvrk/dvrk-github-workflow/main/vcs/ros2-dvrk-main.vcs --recursive
+          vcs import --input https://raw.githubusercontent.com/jhu-saw/vcs/main/ros2-dvrk-main.vcs --recursive
 
       - name: Compile
         run: |
