@@ -57,7 +57,6 @@ jobs:
 
     - name: Create Workspace and retrieve code
       run: |
-        source /opt/ros/jazzy/setup.bash
         mkdir -p ~/ros2_ws/src
         cd ~/ros2_ws/src
         vcs import --input https://raw.githubusercontent.com/jhu-saw/vcs/main/ros2-dvrk-main.vcs --recursive
@@ -68,7 +67,6 @@ jobs:
         CCACHE_NOHASHDIR: "true"
         CCACHE_COMPRESS: "true"
       run: |
-        source /opt/ros/jazzy/setup.bash
         cd ~/ros2_ws
         colcon build --cmake-args -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
