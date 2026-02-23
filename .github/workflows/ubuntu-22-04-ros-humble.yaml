@@ -10,25 +10,53 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    container:
+      image: osrf/ros:humble-desktop
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      - name: Install ROS
+      - name: Setup ROS 2 Humble
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: humble
+
+      - name: Ensure cache directory exists
+        run: mkdir -p apt-cache
+
+      - name: Cache APT packages
+        uses: actions/cache@v4
+        with:
+          path: apt-cache
+          key: ${{ runner.os }}-apt-humble-${{ hashFiles('.github/workflows/ubuntu-22-04-ros-humble.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-apt-humble-
+
+      - name: Install dependencies
         run: |
-          sudo apt install software-properties-common
-          sudo add-apt-repository universe
-          sudo apt update
-          sudo apt install curl
-          sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
-          sudo apt update
-          sudo apt install ros-humble-ros-base ros-dev-tools
-          sudo apt install python3-vcstool python3-colcon-common-extensions
-          sudo apt install libraw1394-dev libncurses5-dev qtcreator swig sox espeak cmake-curses-gui cmake-qt-gui git subversion gfortran-9 libcppunit-dev libqt5xmlpatterns5-dev libbluetooth-dev libhidapi-dev libjsoncpp-dev
+          # Disable the automatic purging of the apt cache in docker images
+          rm -f /etc/apt/apt.conf.d/docker-clean
+          mkdir -p apt-cache
+          APT_CACHE_DIR=$(pwd)/apt-cache
+          echo "Dir::Cache::archives \"$APT_CACHE_DIR\";" | tee /etc/apt/apt.conf.d/10cache
+          echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' | tee /etc/apt/apt.conf.d/01keep-debs
+          apt-get update
+          apt-get install -y ccache
+          apt-get install -y ros-dev-tools python3-vcstool python3-colcon-common-extensions
+          apt-get install -y libraw1394-dev libncurses5-dev qtcreator swig sox espeak cmake-curses-gui cmake-qt-gui git subversion gfortran-9 libcppunit-dev libqt5xmlpatterns5-dev libbluetooth-dev libhidapi-dev libglib2.0-dev libjsoncpp-dev graphviz graphviz-dev
+
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ runner.os }}-ccache-${{ hashFiles('.github/workflows/ubuntu-22-04-ros-humble.yaml') }}
+          max-size: 1G
+
+      - name: ccache stats (before)
+        run: ccache -s
 
       - name: Create Workspace and retrieve code
+        shell: bash
         run: |
           source /opt/ros/humble/setup.bash
           mkdir -p ~/ros2_ws/src
@@ -36,7 +64,15 @@ jobs:
           vcs import --input https://raw.githubusercontent.com/jhu-saw/vcs/main/ros2-dvrk-main.vcs --recursive
 
       - name: Compile
+        shell: bash
+        env:
+          CCACHE_BASEDIR: ${{ github.workspace }}
+          CCACHE_NOHASHDIR: "true"
+          CCACHE_COMPRESS: "true"
         run: |
           source /opt/ros/humble/setup.bash
           cd ~/ros2_ws
-          colcon build
+          colcon build --cmake-args -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+      - name: ccache stats (after)
+        run: ccache -s
