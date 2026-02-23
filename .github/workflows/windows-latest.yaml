@@ -12,11 +12,30 @@ jobs:
 
     runs-on: windows-latest
 
+    env:
+      VCPKG_INSTALLATION_ROOT: C:\vcpkg
+      VCPKG_ROOT: C:\vcpkg
+
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Install Qt
-      uses: jurplel/install-qt-action@v3
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '5.*.*'
+
+    - name: Set up vcpkg binary cache
+      run: |
+        mkdir -p ${{ github.workspace }}/vcpkg_cache
+        echo "VCPKG_DEFAULT_BINARY_CACHE=${{ github.workspace }}/vcpkg_cache" >> $env:GITHUB_ENV
+
+    - name: Cache vcpkg binary artifacts
+      uses: actions/cache@v4
+      with:
+        path: ${{ github.workspace }}/vcpkg_cache
+        key: ${{ runner.os }}-vcpkg-bin-${{ hashFiles('vcpkg.json') }}
+        restore-keys: |
+          ${{ runner.os }}-vcpkg-bin-
 
     - name: Get all repositories
       run: |
@@ -43,7 +62,7 @@ jobs:
     - name: Configure CMake
       working-directory: ${{github.workspace}}/build
       run: |
-        cmake ${{github.workspace}}/cisst-saw -DCMAKE_BUILD_TYPE=Release -C ${{github.workspace}}/.github/workflows/cmake-windows-cache.cmake
+        cmake ${{github.workspace}}/cisst-saw -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -C ${{github.workspace}}/.github/workflows/cmake-windows-cache.cmake
         cmake ${{github.workspace}}/cisst-saw
 
     - name: Build
