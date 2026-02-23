@@ -37,6 +37,14 @@ jobs:
         max-size: 1G
         ccache-command: ccache
 
+    - name: Get all repositories
+      run: |
+        git clone https://github.com/jhu-cisst/cisst-saw --recursive ${{github.workspace}}/cisst-saw
+        cd ${{github.workspace}}/cisst-saw
+        git submodule foreach git checkout devel
+        git submodule foreach git submodule init
+        git submodule foreach git submodule update
+
     - name: Download cisstNetlib
       run: |
         cmake -E make_directory ${{github.workspace}}/cisstNetlib-build
