@@ -56,6 +56,7 @@ jobs:
       run: ccache -s
 
     - name: Create Workspace and retrieve code
+      shell: bash
       run: |
         source /opt/ros/jazzy/setup.bash
         mkdir -p ~/ros2_ws/src
@@ -63,6 +64,7 @@ jobs:
         vcs import --input https://raw.githubusercontent.com/jhu-saw/vcs/main/ros2-dvrk-main.vcs --recursive
 
     - name: Compile
+      shell: bash
       env:
         CCACHE_BASEDIR: ${{ github.workspace }}
         CCACHE_NOHASHDIR: "true"
