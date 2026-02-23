@@ -25,6 +25,9 @@ set (CISST_HAS_CISSTNETLIB ON CACHE BOOL "")
 # Qt
 set (CISST_HAS_QT5 ON CACHE BOOL "")
 
+# cisstInteractive
+set (CISST_cisstInteractive ON CACHE BOOL "")
+
 # SAW components for the dVRK
 set (SAW_sawControllers ON CACHE BOOL "")
 set (SAW_sawIntuitiveResearchKit ON CACHE BOOL "")
