@@ -1,0 +1,76 @@
+name: macOS latest
+
+on:
+
+  workflow_dispatch:
+
+  schedule:
+    - cron: '34 19 * * 0'
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Homebrew cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/Library/Caches/Homebrew
+        key: ${{ runner.os }}-brew-${{ hashFiles('.github/workflows/macos-latest.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-brew-
+
+    - name: Install dependencies
+      run: |
+        brew install graphviz jsoncpp qt@5 pkg-config cppunit ccache
+        # Ensure homebrew bin is in path for subsequent steps
+        echo "/opt/homebrew/bin" >> $GITHUB_PATH
+
+    - name: Setup ccache
+      uses: hendrikmuhs/ccache-action@v1.2
+      with:
+        key: ${{ runner.os }}-ccache-${{ hashFiles('.github/workflows/macos-latest.yaml') }}
+        max-size: 1G
+        ccache-command: ccache
+
+    - name: Download cisstNetlib
+      run: |
+        cmake -E make_directory ${{github.workspace}}/cisstNetlib-build
+        git clone https://github.com/jhu-cisst/cisstNetlib ${{github.workspace}}/cisstNetlib-source
+
+    - name: Build cisstNetlib
+      working-directory: ${{github.workspace}}/cisstNetlib-build
+      run: |
+        cmake ${{github.workspace}}/cisstNetlib-source \
+          -DcisstNetlib_LANGUAGE=C \
+          -DCMAKE_OSX_ARCHITECTURES=arm64 \
+          -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+        cmake --build . --config Release
+        sudo cmake --build . --target install
+
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{github.workspace}}/build
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      run: |
+        export PATH="/opt/homebrew/opt/qt@5/bin:$PATH"
+        cmake ${{github.workspace}}/cisst-saw \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_OSX_ARCHITECTURES=arm64 \
+          -DCMAKE_PREFIX_PATH="/opt/homebrew/opt/qt@5" \
+          -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+          -C ${{github.workspace}}/.github/workflows/cmake-macos-cache.cmake
+
+    - name: Build
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: |
+        cmake --build . --config Release
