@@ -25,6 +25,9 @@ set (CISST_HAS_CISSTNETLIB ON CACHE BOOL "")
 # Qt
 set (CISST_HAS_QT5 ON CACHE BOOL "")
 
+# cisstGraphviz
+set (CISST_cisstGraphviz ON CACHE BOOL "")
+
 # SAW components for the dVRK
 set (SAW_sawKeyboard ON CACHE BOOL "")
 set (SAW_sawTextToSpeech ON CACHE BOOL "")
