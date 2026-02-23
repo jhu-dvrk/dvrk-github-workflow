@@ -38,8 +38,9 @@ jobs:
           ${{ runner.os }}-vcpkg-bin-
 
     - name: Install vcpkg dependencies
+      working-directory: ${{github.workspace}}
       run: |
-        vcpkg install --manifest-root=${{github.workspace}} --triplet x64-windows
+        vcpkg install --triplet x64-windows
 
     - name: Get all repositories
       run: |
