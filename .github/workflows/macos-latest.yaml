@@ -71,6 +71,7 @@ jobs:
         export PATH="/opt/homebrew/opt/qt@5/bin:$PATH"
         cmake ${{github.workspace}}/cisst-saw \
           -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
           -DCMAKE_OSX_ARCHITECTURES=arm64 \
           -DCMAKE_PREFIX_PATH="/opt/homebrew/opt/qt@5" \
           -DCMAKE_C_COMPILER_LAUNCHER=ccache \
