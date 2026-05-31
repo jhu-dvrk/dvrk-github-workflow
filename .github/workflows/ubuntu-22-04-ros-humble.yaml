@@ -62,6 +62,8 @@ jobs:
           mkdir -p ~/ros2_ws/src
           cd ~/ros2_ws/src
           vcs import --input https://raw.githubusercontent.com/jhu-saw/vcs/main/ros2-dvrk-main.vcs --recursive
+          # not supported on ROS2 Humble
+          rm -rf data_collection dvrk/dvrk_display
 
       - name: Compile
         shell: bash
