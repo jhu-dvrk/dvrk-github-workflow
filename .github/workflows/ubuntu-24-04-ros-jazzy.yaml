@@ -72,7 +72,7 @@ jobs:
       run: |
         source /opt/ros/jazzy/setup.bash
         cd ~/ros2_ws
-        colcon build --cmake-args -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+        colcon build --cmake-args -DCISST_HAS_QT6=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
     - name: ccache stats (after)
       run: ccache -s
