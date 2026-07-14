@@ -74,7 +74,7 @@ jobs:
         run: |
           source /opt/ros/humble/setup.bash
           cd ~/ros2_ws
-          colcon build --cmake-args -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          colcon build --packages-skip dvrk_data dvrk_console --cmake-args -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
       - name: ccache stats (after)
         run: ccache -s

@@ -22,7 +22,7 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: '5.*.*'
+        version: '6.*.*'
 
     - name: Set up vcpkg binary cache
       run: |
@@ -50,14 +50,24 @@ jobs:
         git submodule foreach git submodule init
         git submodule foreach git submodule update
 
-    - name: Create cisstNetlib build directory
+    - name: Capture cisstNetlib hash
+      shell: bash
       run: |
-        cmake -E make_directory ${{github.workspace}}/cisstNetlib-build
+        echo "CISSTNETLIB_HASH=$(git -C ${{github.workspace}}/cisst-saw/cisstNetlib rev-parse HEAD)" >> $GITHUB_ENV
+
+    - name: Cache cisstNetlib build
+      id: cache-cisstnetlib
+      uses: actions/cache@v4
+      with:
+        path: ${{github.workspace}}/../cisstNetlib-install
+        key: ${{ runner.os }}-cisstnetlib-${{ env.CISSTNETLIB_HASH }}
 
     - name: Build cisstNetlib
-      working-directory: ${{github.workspace}}/cisstNetlib-build
+      if: steps.cache-cisstnetlib.outputs.cache-hit != 'true'
       run: |
-        cmake ${{github.workspace}}/cisst-saw/cisstNetlib -DcisstNetlib_LANGUAGE=C
+        cmake -E make_directory ${{github.workspace}}/cisstNetlib-build
+        cd ${{github.workspace}}/cisstNetlib-build
+        cmake ${{github.workspace}}/cisst-saw/cisstNetlib -DcisstNetlib_LANGUAGE=C -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/../cisstNetlib-install
         cmake --build . --config Release
         cmake --build . --target install
 
@@ -67,8 +77,7 @@ jobs:
     - name: Configure CMake
       working-directory: ${{github.workspace}}/build
       run: |
-        cmake ${{github.workspace}}/cisst-saw -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -C ${{github.workspace}}/.github/workflows/cmake-windows-cache.cmake
-        cmake ${{github.workspace}}/cisst-saw
+        cmake ${{github.workspace}}/cisst-saw -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" "-DCisstNetlib_DIR=${{github.workspace}}/../cisstNetlib-install/share/cisstNetlib" -C ${{github.workspace}}/.github/workflows/cmake-windows-cache.cmake
 
     - name: Build
       working-directory: ${{github.workspace}}/build

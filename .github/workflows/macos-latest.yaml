@@ -25,8 +25,11 @@ jobs:
           ${{ runner.os }}-brew-
 
     - name: Install dependencies
+      env:
+        HOMEBREW_NO_AUTO_UPDATE: "1"
+        HOMEBREW_NO_INSTALL_CLEANUP: "1"
       run: |
-        brew install graphviz jsoncpp qt@5 pkg-config cppunit ccache python3 numpy swig
+        brew install graphviz jsoncpp qt pkg-config cppunit ccache python3 numpy swig
         # Ensure homebrew bin is in path for subsequent steps
         echo "/opt/homebrew/bin" >> $GITHUB_PATH
 
@@ -47,19 +50,29 @@ jobs:
 
     - name: Download cisstNetlib
       run: |
-        cmake -E make_directory ${{github.workspace}}/cisstNetlib-build
-        git clone https://github.com/jhu-cisst/cisstNetlib ${{github.workspace}}/cisstNetlib-source
+        git clone --depth 1 https://github.com/jhu-cisst/cisstNetlib ${{github.workspace}}/../cisstNetlib-source
+        echo "CISSTNETLIB_HASH=$(git -C ${{github.workspace}}/../cisstNetlib-source rev-parse HEAD)" >> $GITHUB_ENV
+
+    - name: Cache cisstNetlib build
+      id: cache-cisstnetlib
+      uses: actions/cache@v4
+      with:
+        path: ${{github.workspace}}/../cisstNetlib-install
+        key: ${{ runner.os }}-cisstnetlib-${{ env.CISSTNETLIB_HASH }}
 
     - name: Build cisstNetlib
-      working-directory: ${{github.workspace}}/cisstNetlib-build
+      if: steps.cache-cisstnetlib.outputs.cache-hit != 'true'
       run: |
-        cmake ${{github.workspace}}/cisstNetlib-source \
+        cmake -E make_directory ${{github.workspace}}/../cisstNetlib-build
+        cd ${{github.workspace}}/../cisstNetlib-build
+        cmake ${{github.workspace}}/../cisstNetlib-source \
+          -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/../cisstNetlib-install \
           -DcisstNetlib_LANGUAGE=C \
           -DCMAKE_OSX_ARCHITECTURES=arm64 \
           -DCMAKE_C_COMPILER_LAUNCHER=ccache \
           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-        cmake --build . --config Release
-        sudo cmake --build . --target install
+        cmake --build . --config Release --parallel $(sysctl -n hw.ncpu)
+        cmake --build . --target install
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
@@ -68,18 +81,18 @@ jobs:
       shell: bash
       working-directory: ${{github.workspace}}/build
       run: |
-        export PATH="/opt/homebrew/opt/qt@5/bin:$PATH"
         cmake ${{github.workspace}}/cisst-saw \
           -DCMAKE_BUILD_TYPE=Release \
           -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
           -DCMAKE_OSX_ARCHITECTURES=arm64 \
-          -DCMAKE_PREFIX_PATH="/opt/homebrew/opt/qt@5" \
+          -DCMAKE_PREFIX_PATH="/opt/homebrew/opt/qt;/opt/homebrew" \
           -DCMAKE_C_COMPILER_LAUNCHER=ccache \
           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+          -DCisstNetlib_DIR=${{github.workspace}}/../cisstNetlib-install/share/cisstNetlib \
           -C ${{github.workspace}}/.github/workflows/cmake-macos-cache.cmake
 
     - name: Build
       working-directory: ${{github.workspace}}/build
       shell: bash
       run: |
-        cmake --build . --config Release
+        cmake --build . --config Release --parallel $(sysctl -n hw.ncpu)
