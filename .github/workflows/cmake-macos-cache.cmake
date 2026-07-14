@@ -35,5 +35,5 @@ set (sawIntuitiveResearchKit_HAS_SUJ_Si OFF CACHE BOOL "")
 set (sawIntuitiveResearchKit_HAS_HID_HEAD_SENSOR OFF CACHE BOOL "")
 set (SAW_sawRobotIO1394 ON CACHE BOOL "")
 set (Amp1394_HAS_RAW1394 OFF CACHE BOOL "")
-set (Amp1394_HAS_PYTHON OFF CACHE BOOL "")
+set (Amp1394_BUILD_SWIG OFF CACHE BOOL "")
 
