@@ -30,8 +30,9 @@ jobs:
         HOMEBREW_NO_INSTALL_CLEANUP: "1"
       run: |
         brew install graphviz jsoncpp qt pkg-config cppunit ccache python3 numpy swig
-        # Ensure homebrew bin is in path for subsequent steps
+        # Ensure homebrew bin and keg-only Qt bin are in path for subsequent steps
         echo "/opt/homebrew/bin" >> $GITHUB_PATH
+        echo "/opt/homebrew/opt/qt/bin" >> $GITHUB_PATH
 
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@v1.2
