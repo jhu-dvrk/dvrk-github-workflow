@@ -27,7 +27,7 @@ set (CISST_QT_VERSION "6" CACHE STRING "")
 set (CISST_HAS_QT6 ON CACHE BOOL "")
 
 # cisstInteractive
-set (CISST_cisstInteractive ON CACHE BOOL "")
+set (CISST_cisstInteractive OFF CACHE BOOL "")
 
 # SAW components for the dVRK
 set (SAW_sawControllers ON CACHE BOOL "")
@@ -37,4 +37,3 @@ set (sawIntuitiveResearchKit_HAS_HID_HEAD_SENSOR OFF CACHE BOOL "")
 set (SAW_sawRobotIO1394 ON CACHE BOOL "")
 set (Amp1394_HAS_RAW1394 OFF CACHE BOOL "")
 set (Amp1394_BUILD_SWIG OFF CACHE BOOL "")
-
