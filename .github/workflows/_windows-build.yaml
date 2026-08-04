@@ -1,0 +1,87 @@
+name: Windows Build (reusable)
+
+# Reusable workflow — invoke via
+# uses: ./.github/workflows/_windows-build.yaml
+
+on:
+  workflow_call:
+    inputs:
+      cisst_saw_branch:
+        description: 'cisst-saw branch to build, e.g. main or devel'
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    env:
+      VCPKG_INSTALLATION_ROOT: C:\vcpkg
+      VCPKG_ROOT: C:\vcpkg
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.8.*'
+
+    - name: Set up vcpkg binary cache
+      run: |
+        mkdir -p ${{ github.workspace }}/vcpkg_cache
+        echo "VCPKG_DEFAULT_BINARY_CACHE=${{ github.workspace }}/vcpkg_cache" >> $env:GITHUB_ENV
+
+    - name: Cache vcpkg binary artifacts
+      uses: actions/cache@v4
+      with:
+        path: ${{ github.workspace }}/vcpkg_cache
+        key: ${{ runner.os }}-vcpkg-bin-${{ hashFiles('vcpkg.json') }}
+        restore-keys: |
+          ${{ runner.os }}-vcpkg-bin-
+
+    - name: Install vcpkg dependencies
+      working-directory: ${{ github.workspace }}
+      run: vcpkg install --triplet x64-windows
+
+    - name: Get all repositories
+      env:
+        CISST_SAW_BRANCH: ${{ inputs.cisst_saw_branch }}
+      run: |
+        git clone --branch "$env:CISST_SAW_BRANCH" --recursive https://github.com/jhu-cisst/cisst-saw "${{ github.workspace }}/cisst-saw"
+        cd "${{ github.workspace }}/cisst-saw"
+        git submodule foreach "git checkout $env:CISST_SAW_BRANCH"
+        git submodule foreach "git submodule update --init --recursive"
+
+    - name: Capture cisstNetlib hash
+      shell: bash
+      run: |
+        echo "CISSTNETLIB_HASH=$(git -C '${{ github.workspace }}/cisst-saw/cisstNetlib' rev-parse HEAD)" >> "$GITHUB_ENV"
+
+    - name: Cache cisstNetlib build
+      id: cache-cisstnetlib
+      uses: actions/cache@v4
+      with:
+        path: ${{ github.workspace }}/../cisstNetlib-install
+        key: ${{ runner.os }}-cisstnetlib-${{ inputs.cisst_saw_branch }}-${{ env.CISSTNETLIB_HASH }}
+
+    - name: Build cisstNetlib
+      if: steps.cache-cisstnetlib.outputs.cache-hit != 'true'
+      run: |
+        cmake -E make_directory "${{ github.workspace }}/cisstNetlib-build"
+        cd "${{ github.workspace }}/cisstNetlib-build"
+        cmake "${{ github.workspace }}/cisst-saw/cisstNetlib" -DcisstNetlib_LANGUAGE=C -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/../cisstNetlib-install"
+        cmake --build . --config Release
+        cmake --build . --target install
+
+    - name: Create Build Environment
+      run: cmake -E make_directory "${{ github.workspace }}/build"
+
+    - name: Configure CMake
+      working-directory: ${{ github.workspace }}/build
+      run: |
+        cmake "${{ github.workspace }}/cisst-saw" -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_TOOLCHAIN_FILE="${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" "-DCisstNetlib_DIR=${{ github.workspace }}/../cisstNetlib-install/share/cisstNetlib" -C "${{ github.workspace }}/.github/workflows/cmake-windows-cache.cmake"
+
+    - name: Build
+      working-directory: ${{ github.workspace }}/build
+      run: cmake --build . --config Release

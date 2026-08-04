@@ -1,0 +1,15 @@
+name: Windows latest (devel)
+
+on:
+
+  workflow_dispatch:
+
+  schedule:
+    - cron: '34 19 * * 0'
+
+jobs:
+  build:
+    uses: ./.github/workflows/_windows-build.yaml
+    with:
+      cisst_saw_branch: devel
+
