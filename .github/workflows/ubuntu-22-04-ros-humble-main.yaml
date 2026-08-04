@@ -16,4 +16,4 @@ jobs:
       container_image: osrf/ros:humble-desktop
       vcs_file: ros2-dvrk-main.vcs
       colcon_skip_packages: dvrk_data dvrk_console
-      # extra_apt_packages: qtbase5-dev   # example: add Qt5 packages specific to Humble
+      extra_apt_packages: qtbase5-dev libqt5xmlpatterns5-dev

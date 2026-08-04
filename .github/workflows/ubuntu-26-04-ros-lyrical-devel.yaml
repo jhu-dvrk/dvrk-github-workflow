@@ -15,4 +15,4 @@ jobs:
       ros_distro: lyrical
       container_image: osrf/ros:lyrical-desktop
       vcs_file: ros2-dvrk-devel.vcs
-      # extra_apt_packages: qt6-base-dev qt6-tools-dev   # example: add Qt6 packages specific to Lyrical
+      extra_apt_packages: qt6-base-dev

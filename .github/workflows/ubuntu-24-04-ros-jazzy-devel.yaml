@@ -15,4 +15,4 @@ jobs:
       ros_distro: jazzy
       container_image: osrf/ros:jazzy-desktop
       vcs_file: ros2-dvrk-devel.vcs
-      # extra_apt_packages: qt6-base-dev qt6-tools-dev   # example: add Qt6 packages specific to Jazzy+
+      extra_apt_packages: qt6-base-dev
