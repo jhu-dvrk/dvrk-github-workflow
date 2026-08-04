@@ -72,7 +72,7 @@ jobs:
       run: |
         source /opt/ros/jazzy/setup.bash
         cd ~/ros2_ws
-        colcon build --cmake-args -C ${{ github.workspace }}/.github/workflows/cmake-ubuntu-24-04-ros-jazzy-cache.cmake
+        colcon build --cmake-args -C ${{ github.workspace }}/.github/workflows/cmake-ubuntu-cache.cmake
 
     - name: ccache stats (after)
       run: ccache -s
