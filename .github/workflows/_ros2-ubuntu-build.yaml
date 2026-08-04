@@ -1,0 +1,116 @@
+name: ROS 2 Ubuntu Build (reusable)
+
+# Reusable workflow — invoke via `uses: ./.github/workflows/_ros2-ubuntu-build.yaml`
+# All ROS 2 Ubuntu build logic lives here; thin caller files supply the inputs.
+
+on:
+  workflow_call:
+    inputs:
+      ubuntu_version:
+        description: 'Runner image, e.g. ubuntu-24.04'
+        required: true
+        type: string
+      ros_distro:
+        description: 'ROS 2 distribution name, e.g. jazzy'
+        required: true
+        type: string
+      container_image:
+        description: 'Docker container image, e.g. osrf/ros:jazzy-desktop'
+        required: true
+        type: string
+      vcs_file:
+        description: 'VCS file under vcs/ to import, e.g. ros2-dvrk-main.vcs or ros2-dvrk-devel.vcs'
+        required: true
+        type: string
+      colcon_skip_packages:
+        description: 'Space-separated list of packages to pass to --packages-skip (optional)'
+        required: false
+        type: string
+        default: ''
+      extra_apt_packages:
+        description: 'Space-separated list of additional apt packages to install (optional). Use for distro-specific dependencies, e.g. qtbase5-dev on Humble or qt6-base-dev on Jazzy+'
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  build:
+    runs-on: ${{ inputs.ubuntu_version }}
+    container:
+      image: ${{ inputs.container_image }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup ROS 2
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: ${{ inputs.ros_distro }}
+
+      - name: Ensure cache directory exists
+        run: mkdir -p apt-cache
+
+      - name: Cache APT packages
+        uses: actions/cache@v4
+        with:
+          path: apt-cache
+          key: ${{ runner.os }}-apt-${{ inputs.ros_distro }}-${{ inputs.vcs_file }}-${{ hashFiles('.github/workflows/_ros2-ubuntu-build.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-apt-${{ inputs.ros_distro }}-${{ inputs.vcs_file }}-
+            ${{ runner.os }}-apt-${{ inputs.ros_distro }}-
+
+      - name: Install base build tools
+        run: |
+          # Disable the automatic purging of the apt cache in docker images
+          rm -f /etc/apt/apt.conf.d/docker-clean
+          mkdir -p apt-cache
+          APT_CACHE_DIR=$(pwd)/apt-cache
+          echo "Dir::Cache::archives \"$APT_CACHE_DIR\";" | tee /etc/apt/apt.conf.d/10cache
+          echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' | tee /etc/apt/apt.conf.d/01keep-debs
+          apt-get update
+          apt-get install -y ccache ros-dev-tools python3-vcstool python3-colcon-common-extensions git subversion swig sox espeak qtcreator cmake-curses-gui cmake-qt-gui
+          # Install optional distro-specific packages (e.g. Qt5 vs Qt6 dev libraries)
+          if [ -n "${{ inputs.extra_apt_packages }}" ]; then
+            apt-get install -y ${{ inputs.extra_apt_packages }}
+          fi
+
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ runner.os }}-ccache-${{ inputs.ros_distro }}-${{ inputs.vcs_file }}-${{ hashFiles('.github/workflows/_ros2-ubuntu-build.yaml') }}
+          max-size: 1G
+
+      - name: ccache stats (before)
+        run: ccache -s
+
+      - name: Create workspace and retrieve code
+        shell: bash
+        run: |
+          source /opt/ros/${{ inputs.ros_distro }}/setup.bash
+          mkdir -p ~/ros2_ws/src
+          cd ~/ros2_ws/src
+          vcs import --input $GITHUB_WORKSPACE/vcs/${{ inputs.vcs_file }} --recursive
+
+      - name: Install dependencies with rosdep
+        shell: bash
+        run: |
+          source /opt/ros/${{ inputs.ros_distro }}/setup.bash
+          cd ~/ros2_ws
+          rosdep update
+          rosdep install --from-paths src --ignore-src -y --rosdistro ${{ inputs.ros_distro }}
+
+      - name: Compile
+        shell: bash
+        env:
+          CCACHE_BASEDIR: ${{ github.workspace }}
+          CCACHE_NOHASHDIR: "true"
+          CCACHE_COMPRESS: "true"
+        run: |
+          source /opt/ros/${{ inputs.ros_distro }}/setup.bash
+          cd ~/ros2_ws
+          colcon build \
+            ${{ inputs.colcon_skip_packages != '' && format('--packages-skip {0}', inputs.colcon_skip_packages) || '' }} \
+            --cmake-args -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+      - name: ccache stats (after)
+        run: ccache -s

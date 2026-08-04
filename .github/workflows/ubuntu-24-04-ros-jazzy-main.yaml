@@ -1,0 +1,18 @@
+name: Ubuntu 24.04 ROS Jazzy (main)
+
+on:
+
+  workflow_dispatch:
+
+  schedule:
+    - cron: '34 19 * * 0'
+
+jobs:
+  build:
+    uses: ./.github/workflows/_ros2-ubuntu-build.yaml
+    with:
+      ubuntu_version: ubuntu-24.04
+      ros_distro: jazzy
+      container_image: osrf/ros:jazzy-desktop
+      vcs_file: ros2-dvrk-main.vcs
+      # extra_apt_packages: qt6-base-dev qt6-tools-dev   # example: add Qt6 packages specific to Jazzy+

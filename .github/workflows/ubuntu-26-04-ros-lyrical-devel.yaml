@@ -1,0 +1,18 @@
+name: Ubuntu 26.04 ROS Lyrical (devel)
+
+on:
+
+  workflow_dispatch:
+
+  schedule:
+    - cron: '34 19 * * 0'
+
+jobs:
+  build:
+    uses: ./.github/workflows/_ros2-ubuntu-build.yaml
+    with:
+      ubuntu_version: ubuntu-26.04
+      ros_distro: lyrical
+      container_image: osrf/ros:lyrical-desktop
+      vcs_file: ros2-dvrk-devel.vcs
+      # extra_apt_packages: qt6-base-dev qt6-tools-dev   # example: add Qt6 packages specific to Lyrical
