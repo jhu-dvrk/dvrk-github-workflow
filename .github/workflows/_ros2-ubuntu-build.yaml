@@ -68,7 +68,7 @@ jobs:
           echo "Dir::Cache::archives \"$APT_CACHE_DIR\";" | tee /etc/apt/apt.conf.d/10cache
           echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' | tee /etc/apt/apt.conf.d/01keep-debs
           apt-get update
-          apt-get install -y ccache ros-dev-tools python3-vcstool python3-colcon-common-extensions git subversion swig sox espeak qtcreator cmake-curses-gui cmake-qt-gui
+          apt-get install -y ccache ros-dev-tools python3-vcstool python3-colcon-common-extensions git subversion swig sox espeak qtcreator cmake-curses-gui cmake-qt-gui libgraphviz-dev
           # Install optional distro-specific packages (e.g. Qt5 vs Qt6 dev libraries)
           if [ -n "${{ inputs.extra_apt_packages }}" ]; then
             apt-get install -y ${{ inputs.extra_apt_packages }}
