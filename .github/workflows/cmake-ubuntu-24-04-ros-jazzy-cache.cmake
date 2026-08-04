@@ -1,0 +1,8 @@
+# initial CMake cache values for Ubuntu 24.04 ROS Jazzy builds
+
+set (CISST_QT_VERSION "6" CACHE STRING "")
+set (CISST_HAS_QT ON CACHE BOOL "")
+set (CISST_HAS_OPENGL ON CACHE BOOL "")
+
+set (CMAKE_C_COMPILER_LAUNCHER "ccache" CACHE STRING "")
+set (CMAKE_CXX_COMPILER_LAUNCHER "ccache" CACHE STRING "")
