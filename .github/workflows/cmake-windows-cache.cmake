@@ -29,6 +29,11 @@ set (CISST_HAS_QT6 ON CACHE BOOL "")
 # cisstGraphviz
 set (CISST_cisstGraphviz ON CACHE BOOL "")
 
+# cisstInteractive
+# Required by sawIntuitiveResearchKit's system component for its embedded
+# Python interpreter (IRE).
+set (CISST_cisstInteractive ON CACHE BOOL "")
+
 # SAW components for the dVRK
 set (SAW_sawKeyboard ON CACHE BOOL "")
 set (SAW_sawTextToSpeech ON CACHE BOOL "")
