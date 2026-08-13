@@ -19,7 +19,7 @@ on:
         required: true
         type: string
       vcs_file:
-        description: 'VCS file under vcs/ to import, e.g. ros2-dvrk-main.vcs or ros2-dvrk-devel.vcs'
+        description: 'VCS manifest filename from jhu-saw/vcs, e.g. ros2-dvrk-main.vcs or ros2-dvrk-devel.vcs'
         required: true
         type: string
       colcon_skip_packages:
@@ -89,7 +89,7 @@ jobs:
           source /opt/ros/${{ inputs.ros_distro }}/setup.bash
           mkdir -p ~/ros2_ws/src
           cd ~/ros2_ws/src
-          vcs import --input $GITHUB_WORKSPACE/vcs/${{ inputs.vcs_file }} --recursive
+          vcs import --input https://raw.githubusercontent.com/jhu-saw/vcs/main/${{ inputs.vcs_file }} --recursive
 
       - name: Install dependencies with rosdep
         shell: bash
