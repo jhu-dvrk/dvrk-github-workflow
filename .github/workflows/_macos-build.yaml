@@ -47,8 +47,10 @@ jobs:
       env:
         CISST_SAW_BRANCH: ${{ inputs.cisst_saw_branch }}
       run: |
-        git clone --branch "$CISST_SAW_BRANCH" --recursive https://github.com/jhu-cisst/cisst-saw "${{ github.workspace }}/cisst-saw"
+        git clone --branch "$CISST_SAW_BRANCH" https://github.com/jhu-cisst/cisst-saw "${{ github.workspace }}/cisst-saw"
         cd "${{ github.workspace }}/cisst-saw"
+        git checkout "$CISST_SAW_BRANCH"
+        git submodule update --init --recursive
         git submodule foreach "git checkout $CISST_SAW_BRANCH"
         git submodule foreach "git submodule update --init --recursive"
 
@@ -101,4 +103,3 @@ jobs:
       working-directory: ${{ github.workspace }}/build
       shell: bash
       run: cmake --build . --config Release --parallel "$(sysctl -n hw.ncpu)"
-
